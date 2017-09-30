@@ -21,12 +21,12 @@ public class JavaServer1 {
 				System.out.println("本地端口号是：" + sc.getLocalPort());
 				System.out.println("客户端消息是：" + din.readUTF());
 
-				dout.writeUTF("已收到你发来的消息!!");
+				dout.writeUTF("已收到客户端发来的消息!!");
 
 				din.close();
 				dout.close();
 				sc.close();
-				server.close();// 可以注释掉
+//				server.close();// 可以注释掉
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
