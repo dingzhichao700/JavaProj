@@ -23,7 +23,7 @@ public class WindowTest1 extends JFrame {
 	}
 }
 
-class MyPanel extends JFrame // 我自己的面板，用于绘图和实现绘图区域
+class MyPanel extends JPanel // 我自己的面板，用于绘图和实现绘图区域
 {
 	// 覆盖JPanel的paint方法
 	// Graphics是绘图的重要类，可以理解成一支画笔
