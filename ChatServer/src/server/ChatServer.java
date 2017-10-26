@@ -15,14 +15,22 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ChatServer {
-	private List<Client> clients = new ArrayList<Client>();
-	private boolean started = false;
-	private ServerSocket ss = null;
+	public boolean started = false;
+	private ServerSocket serverSocket = null;
 	private Client c = null;
+	private List<Client> clients = new ArrayList<Client>();
+
+	public static void main(String args[]) {
+		ChatServer sever = new ChatServer();
+
+		while (sever.started) {
+			sever.start();
+		}
+	}
 
 	public ChatServer() {
 		try {
-			ss = new ServerSocket(8888);
+			serverSocket = new ServerSocket(8888);
 			started = true;
 		} catch (IOException ioe) {
 			System.out.println("对不起，服务器不能启动！");
@@ -33,10 +41,10 @@ public class ChatServer {
 
 	public void start() {
 		try {
-			Socket s = this.getSs().accept();
+			Socket socket = this.getServerSocket().accept();
 			System.out.println("Here comes a client! ");
-			if (s != null) {
-				c = this.new Client(s, true);
+			if (socket != null) {
+				c = this.new Client(socket, true);
 				this.clients.add(c);
 				new Thread(c).start(); // 线程始终没能停止！！！?
 				c = null;
@@ -47,20 +55,8 @@ public class ChatServer {
 		}
 	}
 
-	public boolean isStarted() {
-		return started;
-	}
-
-	public void setStarted(boolean started) {
-		this.started = started;
-	}
-
-	public ServerSocket getSs() {
-		return ss;
-	}
-
-	public void setSs(ServerSocket ss) {
-		this.ss = ss;
+	public ServerSocket getServerSocket() {
+		return serverSocket;
 	}
 
 	public List<Client> getClients() {
@@ -71,34 +67,26 @@ public class ChatServer {
 		this.clients = clients;
 	}
 
-	public static void main(String args[]) {
-		ChatServer cs = new ChatServer();
-
-		while (cs.isStarted()) {
-			cs.start();
-		}
-	}
-
 	private class Client implements Runnable {
 		private boolean connected = false;
-		private Socket s = null;
+		private Socket socket = null;
 		private DataInputStream dis = null;
 		private DataOutputStream dos = null;
 
 		public Client(Socket s, boolean connected) {
-			this.s = s;
+			this.socket = s;
 			this.connected = connected;
 		}
 
 		public void run() {
 			InetAddress ip = null;
-			int port = 9999;
+			int port = 0;
 			try {
 				if (connected) {
-					dis = new DataInputStream(s.getInputStream());
-					dos = new DataOutputStream(s.getOutputStream());
-					ip = s.getInetAddress();
-					port = s.getPort();
+					dis = new DataInputStream(socket.getInputStream());
+					dos = new DataOutputStream(socket.getOutputStream());
+					ip = socket.getInetAddress();
+					port = socket.getPort();
 				}
 				while (connected) {
 					String line = dis.readUTF();

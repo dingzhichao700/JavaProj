@@ -18,16 +18,11 @@ class DrawSee extends JFrame {
 	private static final int w = 40;
 	private static final int rw = 400;
 
-	private Color rectColor = new Color(0x000000);
-
-	/**
-	 * DrawSee构造方法
-	 */
 	public DrawSee() {
 		Container p = getContentPane();
 		setBounds(100, 100, 500, 500);
 		setVisible(true);
-		p.setBackground(rectColor);
+		p.setBackground(new Color(0x000000));
 		setLayout(null);
 		setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
