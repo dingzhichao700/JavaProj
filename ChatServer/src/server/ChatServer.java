@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class ChatServer {
 	public boolean started = false;
 	private ServerSocket serverSocket = null;
-	private Client c = null;
+	private Client client = null;
 	private List<Client> clients = new ArrayList<Client>();
 
 	public static void main(String args[]) {
@@ -41,13 +41,13 @@ public class ChatServer {
 
 	public void start() {
 		try {
-			Socket socket = this.getServerSocket().accept();
+			Socket socket = this.serverSocket.accept();
 			System.out.println("Here comes a client! ");
 			if (socket != null) {
-				c = this.new Client(socket, true);
-				this.clients.add(c);
-				new Thread(c).start(); // 线程始终没能停止！！！?
-				c = null;
+				client = this.new Client(socket, true);
+				this.clients.add(client);
+				new Thread(client).start(); // 线程始终没能停止！！！?
+				client = null;
 			}
 		} catch (IOException e) {
 			System.out.println("连接错误！");
@@ -55,16 +55,8 @@ public class ChatServer {
 		}
 	}
 
-	public ServerSocket getServerSocket() {
-		return serverSocket;
-	}
-
 	public List<Client> getClients() {
 		return clients;
-	}
-
-	public void setClients(List<Client> clients) {
-		this.clients = clients;
 	}
 
 	private class Client implements Runnable {
@@ -89,19 +81,18 @@ public class ChatServer {
 					port = socket.getPort();
 				}
 				while (connected) {
-					String line = dis.readUTF();
-					if (line.equals("###Exit###")) {
+					String content = dis.readUTF();
+					if (content.equals("###Exit###")) {
 						getClients().remove(this); // 当接收到推出的消息，移除客户端记录
-						line = "Bye-Bye!";
+						content = "Bye-Bye!";
 						connected = false;
 					}
-					System.out.println("From: (" + ip.toString() + ":" + port + "): " + line);
+					System.out.println("From: (" + ip.toString() + ":" + port + "): " + content);
 					for (int i = 0; i < getClients().size(); i++) {
 						if (this.equals(getClients().get(i))) {
 							continue;
 						} else {
-							getClients().get(i).dos
-									.writeUTF("From: (" + ip.toString() + ":" + port + "): " + line + "/n");
+							getClients().get(i).dos.writeUTF("From: (" + ip.toString() + ":" + port + "): " + content);
 						}
 					}
 				}
@@ -112,5 +103,4 @@ public class ChatServer {
 			}
 		}
 	}
-
 }
