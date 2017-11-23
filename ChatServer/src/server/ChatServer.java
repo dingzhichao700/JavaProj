@@ -12,6 +12,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 import java.util.List;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import java.util.ArrayList;
 
 public class ChatServer {
@@ -39,10 +43,37 @@ public class ChatServer {
 		}
 	}
 
+	public void timeVoid() {
+		final Timer timer = new Timer();
+		TimerTask tt = new TimerTask() {
+			public void run() {
+				ClientsCheck();
+			}
+		};
+		timer.schedule(tt, 0, 2000);
+	}
+
+	private void ClientsCheck() {
+		for (int i = 0; i < getClients().size(); i++) {
+			if (!isServerClose(getClients().get(i).socket)) {
+				System.out.println(getClients().get(i).socket.getInetAddress() + ":" + getClients().get(i).socket.getPort() + " 连接");
+			}
+		}
+	}
+
+	public Boolean isServerClose(Socket socket) {
+		try {
+			socket.sendUrgentData(0);// 发送1个字节的紧急数据，默认情况下，服务器端没有开启紧急数据处理，不影响正常通信
+			return false;
+		} catch (Exception se) {
+			return true;
+		}
+	}
+
 	public void start() {
 		try {
 			Socket socket = this.serverSocket.accept();
-			System.out.println("Here comes a client! ");
+			System.out.println("Here comes a client: " + socket.getInetAddress() + ":" + socket.getPort());
 			if (socket != null) {
 				client = this.new Client(socket, true);
 				this.clients.add(client);
@@ -71,9 +102,9 @@ public class ChatServer {
 		}
 
 		public void run() {
-			InetAddress ip = null;
-			int port = 0;
 			try {
+				InetAddress ip = null;
+				int port = 0;
 				if (connected) {
 					dis = new DataInputStream(socket.getInputStream());
 					dos = new DataOutputStream(socket.getOutputStream());
@@ -96,10 +127,9 @@ public class ChatServer {
 						}
 					}
 				}
-
-			} catch (IOException ioe) {
+			} catch (IOException e) {
 				System.out.println("客户端连接出错！");
-				ioe.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 	}
