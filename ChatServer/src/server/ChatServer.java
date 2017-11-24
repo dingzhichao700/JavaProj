@@ -16,9 +16,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JFrame;
+
 import java.util.ArrayList;
 
-public class ChatServer {
+public class ChatServer extends JFrame {
 	public boolean started = false;
 	private ServerSocket serverSocket = null;
 	private Client client = null;
@@ -56,7 +58,8 @@ public class ChatServer {
 	private void ClientsCheck() {
 		for (int i = 0; i < getClients().size(); i++) {
 			if (!isServerClose(getClients().get(i).socket)) {
-				System.out.println(getClients().get(i).socket.getInetAddress() + ":" + getClients().get(i).socket.getPort() + " 连接");
+				System.out.println(getClients().get(i).socket.getInetAddress() + ":"
+						+ getClients().get(i).socket.getPort() + " 连接");
 			}
 		}
 	}
