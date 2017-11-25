@@ -1,10 +1,7 @@
 package server;
 
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 /** 
- * Õâ¸öÁÄÌìÊÒ³ÌĞòÊÇ»ùÓÚTCP SocketµÄ£¬ÆäÖĞ£¬ÎªÁËÏû³ıIO×èÈû£¬²ÉÓÃÁË¶àÏß³ÌµÄ·½Ê½¡£ 
+ * è¿™ä¸ªèŠå¤©å®¤ç¨‹åºæ˜¯åŸºäºTCP Socketçš„ï¼Œå…¶ä¸­ï¼Œä¸ºäº†æ¶ˆé™¤IOé˜»å¡ï¼Œé‡‡ç”¨äº†å¤šçº¿ç¨‹çš„æ–¹å¼ã€‚ 
  *  
  * @author Quasar20063501 
  * @since Jan 29, 2009 
@@ -13,72 +10,39 @@ import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
+import java.net.*;
 import java.util.List;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import java.util.ArrayList;
+
 public class ChatServer extends JFrame {
+	public boolean started = false;
 	private ServerSocket serverSocket = null;
 	private Client client = null;
 	private List<Client> clients = new ArrayList<Client>();
 
 	public static void main(String args[]) {
 		ChatServer sever = new ChatServer();
+
+		while (sever.started) {
+			sever.start();
+		}
 	}
 
 	public ChatServer() {
-		super.setTitle("²âÊÔ²¼¾Ö");
-		super.setSize(420, 300);
-		super.setVisible(true);
-		this.setLayout(null);
-
-		JButton btn = new JButton("Á¬½Ó");
-		btn.setBounds(new Rectangle(93, 220, 180, 30));
-		btn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				start();
-			}
-		});
-		this.add(btn);
-	}
-
-	private void start() {
 		try {
-			if (serverSocket == null) {
-				serverSocket = new ServerSocket(8888);
-				connect();
-			}
+			serverSocket = new ServerSocket(8888);
+			started = true;
 		} catch (IOException ioe) {
-			System.out.println("¶Ô²»Æğ£¬·şÎñÆ÷²»ÄÜÆô¶¯£¡ Ô­Òò£º");
+			System.out.println("å¯¹ä¸èµ·ï¼ŒæœåŠ¡å™¨ä¸èƒ½å¯åŠ¨ï¼");
 			ioe.printStackTrace();
 			System.exit(-1);
 		}
-	}
-
-	public void connect() {
-		try {
-			Socket socket = this.serverSocket.accept();
-			System.out.println("Here comes a client: " + socket.getInetAddress() + ":" + socket.getPort());
-			if (socket != null) {
-				client = this.new Client(socket, true);
-				this.clients.add(client);
-				new Thread(client).start(); // Ïß³ÌÊ¼ÖÕÃ»ÄÜÍ£Ö¹£¡£¡£¡?
-				client = null;
-			}
-		} catch (IOException ioe) {
-			System.out.println("¶Ô²»Æğ£¬·şÎñÆ÷²»ÄÜÆô¶¯£¡ Ô­Òò£º");
-		}
-	}
-
-	public List<Client> getClients() {
-		return clients;
 	}
 
 	public void timeVoid() {
@@ -95,18 +59,38 @@ public class ChatServer extends JFrame {
 		for (int i = 0; i < getClients().size(); i++) {
 			if (!isServerClose(getClients().get(i).socket)) {
 				System.out.println(getClients().get(i).socket.getInetAddress() + ":"
-						+ getClients().get(i).socket.getPort() + " Á¬½Ó");
+						+ getClients().get(i).socket.getPort() + " è¿æ¥");
 			}
 		}
 	}
 
 	public Boolean isServerClose(Socket socket) {
 		try {
-			socket.sendUrgentData(0);// ·¢ËÍ1¸ö×Ö½ÚµÄ½ô¼±Êı¾İ£¬Ä¬ÈÏÇé¿öÏÂ£¬·şÎñÆ÷¶ËÃ»ÓĞ¿ªÆô½ô¼±Êı¾İ´¦Àí£¬²»Ó°ÏìÕı³£Í¨ĞÅ
+			socket.sendUrgentData(0);// å‘é€1ä¸ªå­—èŠ‚çš„ç´§æ€¥æ•°æ®ï¼Œé»˜è®¤æƒ…å†µä¸‹ï¼ŒæœåŠ¡å™¨ç«¯æ²¡æœ‰å¼€å¯ç´§æ€¥æ•°æ®å¤„ç†ï¼Œä¸å½±å“æ­£å¸¸é€šä¿¡
 			return false;
 		} catch (Exception se) {
 			return true;
 		}
+	}
+
+	public void start() {
+		try {
+			Socket socket = this.serverSocket.accept();
+			System.out.println("Here comes a client: " + socket.getInetAddress() + ":" + socket.getPort());
+			if (socket != null) {
+				client = this.new Client(socket, true);
+				this.clients.add(client);
+				new Thread(client).start(); // çº¿ç¨‹å§‹ç»ˆæ²¡èƒ½åœæ­¢ï¼ï¼ï¼?
+				client = null;
+			}
+		} catch (IOException e) {
+			System.out.println("è¿æ¥é”™è¯¯ï¼");
+			e.printStackTrace();
+		}
+	}
+
+	public List<Client> getClients() {
+		return clients;
 	}
 
 	private class Client implements Runnable {
@@ -133,7 +117,7 @@ public class ChatServer extends JFrame {
 				while (connected) {
 					String content = dis.readUTF();
 					if (content.equals("###Exit###")) {
-						getClients().remove(this); // µ±½ÓÊÕµ½ÍÆ³öµÄÏûÏ¢£¬ÒÆ³ı¿Í»§¶Ë¼ÇÂ¼
+						getClients().remove(this); // å½“æ¥æ”¶åˆ°æ¨å‡ºçš„æ¶ˆæ¯ï¼Œç§»é™¤å®¢æˆ·ç«¯è®°å½•
 						content = "Bye-Bye!";
 						connected = false;
 					}
@@ -147,7 +131,7 @@ public class ChatServer extends JFrame {
 					}
 				}
 			} catch (IOException e) {
-				System.out.println("¿Í»§¶ËÁ¬½Ó³ö´í£¡");
+				System.out.println("å®¢æˆ·ç«¯è¿æ¥å‡ºé”™ï¼");
 				// e.printStackTrace();
 			}
 		}
