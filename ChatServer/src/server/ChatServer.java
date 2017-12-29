@@ -24,13 +24,20 @@ import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import sun.print.resources.serviceui;
+
 public class ChatServer extends JFrame {
+	private Boolean runnning = false;
 	private ServerSocket serverSocket = null;
 	private Client client = null;
 	private List<Client> clients = new ArrayList<Client>();
+	private JButton btn;
 
 	public static void main(String args[]) {
 		ChatServer sever = new ChatServer();
+		while (sever.runnning) {
+			sever.connect();
+		}
 	}
 
 	public ChatServer() {
@@ -39,7 +46,7 @@ public class ChatServer extends JFrame {
 		super.setVisible(true);
 		this.setLayout(null);
 
-		JButton btn = new JButton("连接");
+		btn = new JButton("启动");
 		btn.setBounds(new Rectangle(93, 220, 180, 30));
 		btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -53,7 +60,8 @@ public class ChatServer extends JFrame {
 		try {
 			if (serverSocket == null) {
 				serverSocket = new ServerSocket(8888);
-				connect();
+				btn.setLabel("已启动");
+				this.runnning = true;
 			}
 		} catch (IOException ioe) {
 			System.out.println("对不起，服务器不能启动！ 原因：");
